@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="/proxy/9000/socket.io/socket.io.js"></script>
+    <title>The Embarrasser</title>
+</head>
+<script>
+    const socket = io()
+
+    function request() {
+        socket.emit('request', document.getElementById('idbox').value, (callback) => {
+            console.log(callback)
+            for (i = 0; i < callback.length; i++) {
+                let currentGame = callback[i]
+
+            }
+        })
+
+    }
+</script>
+<body>
+    <input type="text" name="something" id="idbox">
+    <button id="request" onpress="request()">query</button>
+    <div id="top played games">
+    div
+    </div>
+</body>
+</html>
