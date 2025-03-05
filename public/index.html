@@ -13,41 +13,62 @@
 
     var insultArray = {"Cookie Clicker":"spent doing nothing!", "Team Fortress 2":"spent camping on Dustbowl!", "Satisfactory":"building shitty factories!", "Leaf Blower Revolution - Idle Game":"...blowing fucking leaves?", "Totally Accurate Battle Simulator":"challenging the Roman Empire", "People Playground":"being a psychopath", "Terraria":"wishing he had bougt Minecraft", "Subnautica":"not completing Subnautica", "ULTRAKILL":"getting D ranks", "WorldBox - God Simulator":"striking people with lightining", "AdVenture Capitalist":"failing to make money", "tModLoader":"cheating in Roblox", "Kerbal Space Program":"crashing before the kerman line", "Hydroneer":"not completing the game", "Factorio":"failing to automate red science", "Destiny 2":"playing the worst game known to man", "Brotato":"dying on wave 4", "SPACEPLAN":"forgetting oxygen", "Portal 2":"dying to Wheatley", "Undertale":"simping for Toriel"}
 
+    function getCookie(name) {
+            const value = `; ${document.cookie}`;
+            const parts = value.split(`; ${name}=`);
+            if (parts.length === 2) return parts.pop().split(';').shift();
+        }
+
     function request() {
         console.log("Requesting...")
-        socket.emit('request', document.getElementById('idbox').value, (callback) => {
-            //console.log(callback)
-            gameArray = JSON.parse(callback)
-            for (i = 0; i < gameArray.length; i++) {
 
-                let currentGame = gameArray[i]
 
-                let currentInsult = insultArray[currentGame.name]
 
-                if (currentInsult != null) {
-                    insult(currentInsult)
-                } else {
-                    insult("time wasted!")
+        if (getCookie("cacheTime")) {
+            return getCookie("cacheTime")
+            console.log("cookie used")
+        } else {
+            socket.emit('request', document.getElementById('idbox').value, (callback) => {
+                //console.log(callback)
+                gameArray = JSON.parse(callback)
+
+                var now = new Date();
+                now.setTime(now.getTime() + 1 * 3600 * 1000);
+
+                document.cookie = "cacheTime="+JSON.stringify(gameArray)+"; expires="+ now.toUTCString()+ ";"
+                console.log("cookie made", getCookie("cacheTime"))
+
+                for (i = 0; i < gameArray.length; i++) {
+
+                    let currentGame = gameArray[i]
+
+                    let currentInsult = insultArray[currentGame.name]
+
+                    if (currentInsult != null) {
+                        insult(currentInsult)
+                    } else {
+                        insult("time wasted!")
+                    }
+                    
+                    function insult(functionInsult) {
+                        let element = 
+                        `<div style="background-image: linear-gradient(52deg, rgba(2, 0, 36, 0) 0%, rgba(9,9,121,1) 85%, rgba(0,102,122,1) 100%), url(${currentGame.banner});" class="topGameItem" id="item${i}">
+                                <div class="mainText">${currentGame.name}</div>
+                                <div class="subText">${currentGame.timehrs} hours ${functionInsult}</div>
+                                <div class="subSubText">(That's ${currentGame.timemin} minutes!!!)</div>
+                            
+                        </div>`
+
+                        console.log
+
+                        let container = document.getElementById("topGames")
+                        container.innerHTML += element
+
+                    }
+                    
                 }
-                
-                function insult(functionInsult) {
-                    let element = 
-                    `<div style="background-image: linear-gradient(52deg, rgba(2, 0, 36, 0) 0%, rgba(9,9,121,1) 85%, rgba(0,102,122,1) 100%), url(${currentGame.banner});" class="topGameItem" id="item${i}">
-                            <div class="mainText">${currentGame.name}</div>
-                            <div class="subText">${currentGame.timehrs} hours ${functionInsult}</div>
-                            <div class="subSubText">(That's ${currentGame.timemin} minutes!!!)</div>
-                        
-                    </div>`
-
-                    console.log
-
-                    let container = document.getElementById("topGames")
-                    container.innerHTML += element
-
-                }
-                
-            }
-        })
+            })
+        }
 
     }
 </script>
@@ -80,7 +101,7 @@
         padding: 10px;
         border-radius: 10px;
         filter: drop-shadow(23px 14px 23px #000000);
-        min-height: 100px;
+        min-height: 200px;
     }
 
     .gradient {
