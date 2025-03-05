@@ -5,6 +5,7 @@ const path = require('path');
 const socketio = require('socket.io');
 const fs = require('fs');
 const port = 9000
+
 var loadedInsults;
 
 app.use(express.static('public'));
@@ -19,13 +20,9 @@ const server = app.listen(port, () => {
     console.log(`Server listening on port ${port}`);
 });
 
-
 const io = socketio(server)
 
-// use folder public
-
-
-
+loadFiles()
 
 // Replace with your Steam API Key and Steam User ID
 const steamApiKey = '8D5948BD8EF0A3E6D105CB5A3676E39E';
@@ -110,5 +107,25 @@ io.on('connection', (socket) => {
         }
     });
 
-    
+    socket.on("insult", async (returnInsult) => {
+        const insult = "Monty is a" + loadedInsults["adj"][Math.floor(Math.random() * loadedInsults["adj"].length)].toLowerCase() + " " + loadedInsults["verbs"][Math.floor(Math.random() * loadedInsults["verbs"].length)].toLowerCase() + " " + loadedInsults["nouns"][Math.floor(Math.random() * loadedInsults["nouns"].length)].toLowerCase();
+
+        returnInsult(insult);
+    });
 });
+
+function loadFiles() {
+    try {
+        var filename = "./insults.json"
+        loadedInsults = JSON.parse(fs.readFileSync(filename, 'utf8'))
+    } catch (error) {
+        console.error("Chat file dead:", error)
+    }
+}
+
+// function insultOnLoad() {
+//     // Adding functionality from py.insultgen
+//     socket.emit('insult', (callback) => {
+//         console.log(callback)
+//     })
+// }

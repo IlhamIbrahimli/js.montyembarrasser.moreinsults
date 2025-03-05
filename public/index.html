@@ -13,6 +13,11 @@
 
     var insultArray = {"Cookie Clicker":"spent doing nothing!", "Team Fortress 2":"spent camping on Dustbowl!", "Satisfactory":"building shitty factories!", "Leaf Blower Revolution - Idle Game":"...blowing fucking leaves?", "Totally Accurate Battle Simulator":"challenging the Roman Empire", "People Playground":"being a psychopath", "Terraria":"wishing he had bougt Minecraft", "Subnautica":"not completing Subnautica", "ULTRAKILL":"getting D ranks", "WorldBox - God Simulator":"striking people with lightining", "AdVenture Capitalist":"failing to make money", "tModLoader":"cheating in Roblox", "Kerbal Space Program":"crashing before the kerman line", "Hydroneer":"not completing the game", "Factorio":"failing to automate red science", "Destiny 2":"playing the worst game known to man", "Brotato":"dying on wave 4", "SPACEPLAN":"forgetting oxygen", "Portal 2":"dying to Wheatley", "Undertale":"simping for Toriel"}
 
+    function onLoad() {
+        request()
+        setupHeader()
+    }
+
     function getCookie(name) {
             const value = `; ${document.cookie}`;
             const parts = value.split(`; ${name}=`);
@@ -25,11 +30,11 @@
 
 
         if (getCookie("cacheTime")) {
-            return getCookie("cacheTime")
+            addContent(JSON.parse(getCookie("cacheTime")))
             console.log("cookie used")
         } else {
             socket.emit('request', document.getElementById('idbox').value, (callback) => {
-                //console.log(callback)
+                console.log(callback)
                 gameArray = JSON.parse(callback)
 
                 var now = new Date();
@@ -38,40 +43,56 @@
                 document.cookie = "cacheTime="+JSON.stringify(gameArray)+"; expires="+ now.toUTCString()+ ";"
                 console.log("cookie made", getCookie("cacheTime"))
 
-                for (i = 0; i < gameArray.length; i++) {
+                addContent(gameArray)
 
-                    let currentGame = gameArray[i]
-
-                    let currentInsult = insultArray[currentGame.name]
-
-                    if (currentInsult != null) {
-                        insult(currentInsult)
-                    } else {
-                        insult("time wasted!")
-                    }
-                    
-                    function insult(functionInsult) {
-                        let element = 
-                        `<div style="background-image: linear-gradient(52deg, rgba(2, 0, 36, 0) 0%, rgba(9,9,121,1) 85%, rgba(0,102,122,1) 100%), url(${currentGame.banner});" class="topGameItem" id="item${i}">
-                                <div class="mainText">${currentGame.name}</div>
-                                <div class="subText">${currentGame.timehrs} hours ${functionInsult}</div>
-                                <div class="subSubText">(That's ${currentGame.timemin} minutes!!!)</div>
-                            
-                        </div>`
-
-                        console.log
-
-                        let container = document.getElementById("topGames")
-                        container.innerHTML += element
-
-                    }
-                    
-                }
             })
         }
 
     }
 
+    function addContent(gameArray) {
+
+        for (i = 0; i < gameArray.length; i++) {
+
+            let currentGame = gameArray[i]
+
+            let currentInsult = insultArray[currentGame.name]
+
+            if (currentInsult != null) {
+                insult(currentInsult)
+            } else {
+                insult("time wasted!")
+            }
+
+            function insult(functionInsult) {
+                let element = 
+                `<div style="background-image: linear-gradient(52deg, rgba(2, 0, 36, 0) 0%, rgba(9,9,121,1) 85%, rgba(0,102,122,1) 100%), url(${currentGame.banner});" class="topGameItem" id="item${i}">
+                        <div class="mainText">${currentGame.name}</div>
+                        <div class="subText">${currentGame.timehrs} hours ${functionInsult}</div>
+                        <div class="subSubText">(That's ${currentGame.timemin} minutes!!!)</div>
+                    
+                </div>`
+
+                console.log
+
+                let container = document.getElementById("topGames")
+                container.innerHTML += element
+
+            }
+
+        }
+    }
+
+    function setupHeader() {
+        let header = document.getElementById("header")
+
+        socket.emit("insult", (callback) => {
+            let headerPhrase = `<div class="headerText">${callback}</div>`
+
+            header.innerHTML += headerPhrase
+        })
+    }
+    
     
 </script>
 
@@ -97,6 +118,15 @@
         color: white;
     }
 
+    #topGamesTag {
+        justify-self: center;
+        font-size: 30px;
+        font-family: sans-serif;
+        color: white;
+        padding-top: 25px;
+        text-align: center;
+    }
+
     .topGameItem {
         background-size: auto 100%;
         margin: 20px;
@@ -104,6 +134,7 @@
         border-radius: 10px;
         filter: drop-shadow(23px 14px 23px #000000);
         min-height: 200px;
+        background-position: center;
     }
 
     .gradient {
@@ -119,16 +150,66 @@
 
     .subText {
         font-size: 20px;
+    }
 
+    .subSubText {
+        font-size: 15px;
+        color: lightgray;
+    }
+
+    #header {
+        width: auto;
+        min-height: 500px;
+        background: rgb(9,0,164);
+        background: linear-gradient(180deg, rgba(9,0,164,1) 0%, rgba(0,156,186,1) 100%);
+        filter: drop-shadow(5px 17px 11px #000000);
+    }
+
+    #topbar {
+        width: 100%;
+        height: 50px;
+    }
+
+    .headerText {
+        color: white;
+        font-family: impact;
+        text-align: center;
+        margin-top: 100px;
+        font-size: 70px;
+    }
+
+    #headerTitle {
+        color: White;
+        font-family: Impact;
+        font-size: 40px;
+        padding-left: 10px;
+    }
+
+    #footer {
+        color: white;
+        background-color: black;
+        text-align: center;
+        text-decoration: none;
+        font-size: 20px;
+        padding-top: 5px;
+        min-height: 50px;
+        font-family: sans-serif;
+    }
+
+    #footer > a {
+        text-decoration: none;
     }
 </style>
-<body>
-    <img src="" alt="">
-    <input type="text" name="something" id="idbox">
-    <button id="request" onclick="request()">query</button>
-    <br>
-    <div id="topGames">
+<body onload="onLoad()">
+    <div id="topbar">
+        <div id="headerTitle">The Monty Embarrasser</div>
     </div>
-    <button id="request" onpress="insultOnLoad()">query</button>
+    <div id="header"></div>
+    <div id="topGamesTag">See How Much Time he's Wasted on Bad games!</div>
+    <div id="topGames"></div>
+    <div id="footer">
+        © Voidarc Incorporated 2025 - <a href="https://www.gnu.org/licenses/gpl-3.0.en.html">GNU General Public Licence</a> <br>
+        <a href="https://www.github.com/voidarclabs">Github</a>
+    </div>
 </body>
 </html>
