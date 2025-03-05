@@ -3,9 +3,10 @@ const express = require('express');
 const app = express();
 const path = require('path');
 const socketio = require('socket.io');
+const fs = require('fs');
 const port = 9000
+var loadedInsults;
 
-// use folder public
 app.use(express.static('public'));
 
 // make server serve index.html when requested
@@ -18,7 +19,13 @@ const server = app.listen(port, () => {
     console.log(`Server listening on port ${port}`);
 });
 
+
 const io = socketio(server)
+
+// use folder public
+
+
+
 
 // Replace with your Steam API Key and Steam User ID
 const steamApiKey = '8D5948BD8EF0A3E6D105CB5A3676E39E';
@@ -102,4 +109,6 @@ io.on('connection', (socket) => {
             callback({ error: "An error occurred while fetching data." }); // Error handling callback
         }
     });
+
+    
 });
