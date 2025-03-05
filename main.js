@@ -3,11 +3,9 @@ const express = require('express');
 const app = express();
 const path = require('path');
 const socketio = require('socket.io');
-const fs = require('node:fs');
+const fs = require('fs');
 const port = 9000
-let adj;
-let ver;
-let nou;
+var loadedInsults;
 
 app.use(express.static('public'));
 
@@ -23,21 +21,7 @@ const server = app.listen(port, () => {
 
 
 const io = socketio(server)
-function loadFiles() {
-    try {
-        adj = fs.readFileSync("./adj.txt", 'utf8').split("\n")
-        ver = fs.readFileSync("./ver.txt", 'utf8').split("\n")
-        nou = fs.readFileSync("./nou.txt", 'utf8').split("\n")
 
-        console.log(adj)
-        console.log(ver)
-        console.log(nou)
-    }catch(error) {
-        console.error("Chat file dead:", error)
-    }
-}
-
-loadFiles();
 // use folder public
 
 
@@ -126,9 +110,5 @@ io.on('connection', (socket) => {
         }
     });
 
-    socket.on("insult", async (returnInsult) => {
-        const insult = "Monty is a" + adj[Math.floor(Math.random() * adj.length)].toLowerCase() + " " + ver[Math.floor(Math.random() * ver.length)].toLowerCase() + " " + nou[Math.floor(Math.random() * nou.length)].toLowerCase();
-        
-        returnInsult(insult);
-    });
+    
 });
