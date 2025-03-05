@@ -93,11 +93,10 @@ async function getOwnedGames() {
 io.on('connection', (socket) => {
     console.log(socket.id);
 
-    socket.on("request", async (data, callback) => {
-        console.log(`request for ${data} recieved`)
+    socket.on("request", async (callback) => {
         try {
             // Get the user's owned games with the provided steamId
-            const topGames = await getOwnedGames(data.steamId);
+            const topGames = await getOwnedGames(steamId);
 
             // Call the callback with the top games JSON data once the games are fetched
             callback(topGames); // This triggers the callback with the returned data

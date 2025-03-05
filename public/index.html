@@ -33,7 +33,7 @@
             addContent(JSON.parse(getCookie("cacheTime")))
             console.log("cookie used")
         } else {
-            socket.emit('request', document.getElementById('idbox').value, (callback) => {
+            socket.emit('request', (callback) => {
                 console.log(callback)
                 gameArray = JSON.parse(callback)
 
