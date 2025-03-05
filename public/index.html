@@ -3,18 +3,49 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <script src="/proxy/9000/socket.io/socket.io.js"></script>
+    <script src="/socket.io/socket.io.js"></script>
     <title>The Embarrasser</title>
 </head>
 <script>
     const socket = io()
 
-    function request() {
-        socket.emit('request', document.getElementById('idbox').value, (callback) => {
-            console.log(callback)
-            for (i = 0; i < callback.length; i++) {
-                let currentGame = callback[i]
+    var gameArray
 
+    var insultArray = {"Cookie Clicker":"spent doing nothing!", "Team Fortress 2":"spent camping on Dustbowl!", "Satisfactory":"building shitty factories!", "Leaf Blower Revolution - Idle Game":"...blowing fucking leaves?", "Totally Accurate Battle Simulator":"challenging the Roman Empire", "People Playground":"being a psychopath", "Terraria":"wishing he had bougt Minecraft", "Subnautica":"not completing Subnautica", "ULTRAKILL":"getting D ranks", "WorldBox - God Simulator":"striking people with lightining", "AdVenture Capitalist":"failing to make money", "tModLoader":"cheating in Roblox", "Kerbal Space Program":"crashing before the kerman line", "Hydroneer":"not completing the game", "Factorio":"failing to automate red science", "Destiny 2":"playing the worst game known to man", "Brotato":"dying on wave 4", "SPACEPLAN":"forgetting oxygen", "Portal 2":"dying to Wheatley", "Undertale":"simping for Toriel"}
+
+    function request() {
+        console.log("Requesting...")
+        socket.emit('request', document.getElementById('idbox').value, (callback) => {
+            //console.log(callback)
+            gameArray = JSON.parse(callback)
+            for (i = 0; i < gameArray.length; i++) {
+
+                let currentGame = gameArray[i]
+
+                let currentInsult = insultArray[currentGame.name]
+
+                if (currentInsult != null) {
+                    insult(currentInsult)
+                } else {
+                    insult("time wasted!")
+                }
+                
+                function insult(functionInsult) {
+                    let element = 
+                    `<div style="background-image: linear-gradient(52deg, rgba(2, 0, 36, 0) 0%, rgba(9,9,121,1) 85%, rgba(0,102,122,1) 100%), url(${currentGame.banner});" class="topGameItem" id="item${i}">
+                            <div class="mainText">${currentGame.name}</div>
+                            <div class="subText">${currentGame.timehrs} hours ${functionInsult}</div>
+                            <div class="subSubText">(That's ${currentGame.timemin} minutes!!!)</div>
+                        
+                    </div>`
+
+                    console.log
+
+                    let container = document.getElementById("topGames")
+                    container.innerHTML += element
+
+                }
+                
             }
         })
 
@@ -27,11 +58,60 @@
         })
     }
 </script>
+
+<style>
+    body {
+        padding: 0;
+        margin: 0;
+        background-color: #00033b;
+        display: flex;
+        justify-content: center;
+        flex-direction: column;
+    }
+
+    #topGames {
+        margin: 0 40px 0 40px;
+        display: grid;
+        min-height: 1000px;
+        text-align: center;
+        font-family: sans-serif;
+        min-width: 500px;
+        grid-template-columns: repeat(5, 1fr);
+        grid-template-columns: repeat(4, 1fr);
+        color: white;
+    }
+
+    .topGameItem {
+        background-size: auto 100%;
+        margin: 20px;
+        padding: 10px;
+        border-radius: 10px;
+        filter: drop-shadow(23px 14px 23px #000000);
+        min-height: 100px;
+    }
+
+    .gradient {
+        background: linear-gradient(52deg, rgba(2, 0, 36, 0) 0%, rgba(9,9,121,1) 70%, rgba(0,102,122,1) 100%);
+        min-height: 100%;
+        min-width: 100%;
+    }
+
+    .mainText {
+        font-family: impact;
+        font-size: 30px;
+    }
+
+    .subText {
+        font-size: 20px;
+
+    }
+</style>
 <body>
+    <img src="" alt="">
     <input type="text" name="something" id="idbox">
-    <button id="request" onpress="request()">query</button>
-    <div id="top played games">
-    div
+    <button id="request" onclick="request()">query</button>
+    <br>
+    <div id="topGames">
     </div>
     <button id="request" onpress="insultOnLoad()">query</button>
 </body>

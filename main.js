@@ -45,7 +45,7 @@ loadFiles();
 
 // Replace with your Steam API Key and Steam User ID
 const steamApiKey = '8D5948BD8EF0A3E6D105CB5A3676E39E';
-//const steamId = '76561199061101466';
+const steamId = '76561199061101466';
 
 // Function to get game's banner image URL from the Steam store
 async function getGameBanner(appId) {
@@ -69,7 +69,7 @@ async function getGameBanner(appId) {
 }
 
 // Function to get user's owned games and their playtime
-async function getOwnedGames(steamId) {
+async function getOwnedGames() {
     try {
         const url = `https://api.steampowered.com/IPlayerService/GetOwnedGames/v1/`;
         const response = await axios.get(url, {
@@ -102,6 +102,8 @@ async function getOwnedGames(steamId) {
 
         // Output the top games in JSON format
         console.log(JSON.stringify(topGamesJSON, null, 2));
+
+        return JSON.stringify(topGamesJSON, null, 2)
     } catch (error) {
         console.error('Error fetching owned games:', error);
     }
@@ -111,6 +113,7 @@ io.on('connection', (socket) => {
     console.log(socket.id);
 
     socket.on("request", async (data, callback) => {
+        console.log(`request for ${data} recieved`)
         try {
             // Get the user's owned games with the provided steamId
             const topGames = await getOwnedGames(data.steamId);
