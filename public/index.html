@@ -19,6 +19,13 @@
         })
 
     }
+
+    function insultOnLoad() {
+        // Adding functionality from py.insultgen
+        socket.emit('insult', (callback) => {
+            console.log(callback)
+        })
+    }
 </script>
 <body>
     <input type="text" name="something" id="idbox">
@@ -26,5 +33,6 @@
     <div id="top played games">
     div
     </div>
+    <button id="request" onpress="insultOnLoad()">query</button>
 </body>
 </html>

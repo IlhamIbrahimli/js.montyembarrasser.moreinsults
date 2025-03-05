@@ -3,9 +3,12 @@ const express = require('express');
 const app = express();
 const path = require('path');
 const socketio = require('socket.io');
+const fs = require('node:fs');
 const port = 9000
+let adj;
+let ver;
+let nou;
 
-// use folder public
 app.use(express.static('public'));
 
 // make server serve index.html when requested
@@ -18,7 +21,27 @@ const server = app.listen(port, () => {
     console.log(`Server listening on port ${port}`);
 });
 
+
 const io = socketio(server)
+function loadFiles() {
+    try {
+        adj = fs.readFileSync("./adj.txt", 'utf8').split("\n")
+        ver = fs.readFileSync("./ver.txt", 'utf8').split("\n")
+        nou = fs.readFileSync("./nou.txt", 'utf8').split("\n")
+
+        console.log(adj)
+        console.log(ver)
+        console.log(nou)
+    }catch(error) {
+        console.error("Chat file dead:", error)
+    }
+}
+
+loadFiles();
+// use folder public
+
+
+
 
 // Replace with your Steam API Key and Steam User ID
 const steamApiKey = '8D5948BD8EF0A3E6D105CB5A3676E39E';
@@ -98,5 +121,11 @@ io.on('connection', (socket) => {
             console.error("Error during request:", error);
             callback({ error: "An error occurred while fetching data." }); // Error handling callback
         }
+    });
+
+    socket.on("insult", async (returnInsult) => {
+        const insult = "Monty is a" + adj[Math.floor(Math.random() * adj.length)].toLowerCase() + " " + ver[Math.floor(Math.random() * ver.length)].toLowerCase() + " " + nou[Math.floor(Math.random() * nou.length)].toLowerCase();
+        
+        returnInsult(insult);
     });
 });
