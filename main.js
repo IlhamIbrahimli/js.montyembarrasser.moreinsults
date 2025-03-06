@@ -26,7 +26,7 @@ loadFiles()
 
 // Replace with your Steam API Key and Steam User ID
 const steamApiKey = '8D5948BD8EF0A3E6D105CB5A3676E39E';
-const steamId = '76561199061101466';
+const montySteamId = '76561199061101466';
 
 // Function to get game's banner image URL from the Steam store
 async function getGameBanner(appId) {
@@ -50,7 +50,7 @@ async function getGameBanner(appId) {
 }
 
 // Function to get user's owned games and their playtime
-async function getOwnedGames() {
+async function getOwnedGames(steamId) {
     try {
         const url = `https://api.steampowered.com/IPlayerService/GetOwnedGames/v1/`;
         const response = await axios.get(url, {
@@ -65,7 +65,7 @@ async function getOwnedGames() {
         const games = response.data.response.games;
 
         // Sort games by playtime (descending order) and get the top 20
-        const topGames = games.sort((a, b) => b.playtime_forever - a.playtime_forever).slice(0, 20);
+        let topGames = games.sort((a, b) => b.playtime_forever - a.playtime_forever).slice(0, 20);
 
         // Create an object to store game information in JSON format
         const topGamesJSON = [];
@@ -93,13 +93,16 @@ async function getOwnedGames() {
 io.on('connection', (socket) => {
     console.log(socket.id);
 
-    socket.on("request", async (callback) => {
+    socket.on("request", async (data, callback) => {
         try {
-            // Get the user's owned games with the provided steamId
-            const topGames = await getOwnedGames(steamId);
-
-            // Call the callback with the top games JSON data once the games are fetched
-            callback(topGames); // This triggers the callback with the returned data
+            if (data != undefined) {
+                topGames = await getOwnedGames(data);
+                callback([topGames, data])
+            } else {
+                topGames = await getOwnedGames(montySteamId);
+                callback([topGames, montySteamId])
+                console.log(topGames)
+            }
         } catch (error) {
             console.error("Error during request:", error);
             callback({ error: "An error occurred while fetching data." }); // Error handling callback

@@ -14,7 +14,7 @@
     var insultArray = {"Cookie Clicker":"spent doing nothing!", "Team Fortress 2":"spent camping on Dustbowl!", "Satisfactory":"building shitty factories!", "Leaf Blower Revolution - Idle Game":"...blowing fucking leaves?", "Totally Accurate Battle Simulator":"challenging the Roman Empire", "People Playground":"being a psychopath", "Terraria":"wishing he had bougt Minecraft", "Subnautica":"not completing Subnautica", "ULTRAKILL":"getting D ranks", "WorldBox - God Simulator":"striking people with lightining", "AdVenture Capitalist":"failing to make money", "tModLoader":"cheating in Roblox", "Kerbal Space Program":"crashing before the kerman line", "Hydroneer":"not completing the game", "Factorio":"failing to automate red science", "Destiny 2":"playing the worst game known to man", "Brotato":"dying on wave 4", "SPACEPLAN":"forgetting oxygen", "Portal 2":"dying to Wheatley", "Undertale":"simping for Toriel"}
 
     function onLoad() {
-        request()
+        requestOnload(getCookie("cachedId"))
         setupHeader()
     }
 
@@ -22,32 +22,39 @@
             const value = `; ${document.cookie}`;
             const parts = value.split(`; ${name}=`);
             if (parts.length === 2) return parts.pop().split(';').shift();
-        }
+    }
 
-    function request() {
-        console.log("Requesting...")
-
-
-
-        if (getCookie("cacheTime")) {
+    function requestOnload(customID) {
+        if (getCookie("cachedId") == customID) {
             addContent(JSON.parse(getCookie("cacheTime")))
             console.log("cookie used")
         } else {
-            socket.emit('request', (callback) => {
-                console.log(callback)
-                gameArray = JSON.parse(callback)
-
-                var now = new Date();
-                now.setTime(now.getTime() + 1 * 3600 * 1000);
-
-                document.cookie = "cacheTime="+JSON.stringify(gameArray)+"; expires="+ now.toUTCString()+ ";"
-                console.log("cookie made", getCookie("cacheTime"))
-
-                addContent(gameArray)
-
-            })
+            document.getElementById("topGames").innerHTML = ""
+            request(customID)
         }
+    }
 
+    function request(customID) {
+
+        console.log("Requesting...")
+
+        console.log(customID)
+
+        socket.emit('request', customID, (callback) => {
+            console.log(callback)
+            gameArray = JSON.parse(callback[0])
+            let correctId = callback[1]
+
+            var now = new Date();
+            now.setTime(now.getTime() + 1 * 3600 * 1000);
+
+            document.cookie = "cacheTime="+JSON.stringify(gameArray)+"; expires="+ now.toUTCString()+ ";"
+            document.cookie = "cachedId="+JSON.stringify(correctId)+"; expires="+ now.toUTCString()+ ";"
+            console.log("cookie made", getCookie("cacheTime"), getCookie("cachedId"))
+
+            addContent(gameArray)
+
+        })
     }
 
     function addContent(gameArray) {
