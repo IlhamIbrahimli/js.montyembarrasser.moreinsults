@@ -4,7 +4,7 @@ const app = express();
 const path = require('path');
 const socketio = require('socket.io');
 const fs = require('fs');
-const port = 9000
+const port = 9001
 
 var loadedInsults;
 
