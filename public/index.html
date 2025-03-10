@@ -59,24 +59,13 @@
 
     function request(steamId) {
         console.log(steamId)
-        if (getCookie(steamId) != undefined) {
-            addContent(JSON.parse(getCookie(steamId)))
-            console.log("cookie used")
-        } else {
-            socket.emit('request', steamId, (callback) => {
-                console.log(callback)
-                gameArray = JSON.parse(callback[0])
-                let correctId = callback[1]
+        socket.emit('request', steamId, (callback) => {
+            console.log(callback)
+            gameArray = JSON.parse(callback[0])
+            let correctId = callback[1]
 
-                var now = new Date();
-                now.setTime(now.getTime() + 1 * 3600 * 1000);
-
-                document.cookie = correctId+"="+JSON.stringify(gameArray)+"; expires="+ now.toUTCString()+ ";"
-                console.log("cookie made", getCookie(correctId))
-
-                addContent(gameArray)
-            })
-        }
+            addContent(gameArray)
+        })
         
        
 
@@ -234,12 +223,23 @@
     #footer > a {
         text-decoration: none;
     }
+
+    #selector {
+        justify-self: center;
+        width: 60%;
+        margin-left: 20%;
+        margin-top: 45px;
+        text-align: center;
+    }
 </style>
 <body onload="onLoad()">
     <div id="topbar">
         <div id="headerTitle">The Monty Embarrasser</div>
     </div>
-    <div id="header"></div>
+    <div id="header">
+        <input type="text" name="" id="selector" placeholder="SteamID...">
+        <button id="selectorButton" onclick="request(document.getElementById(`selector`).value)"></button>
+    </div>
     <div id="topGamesTag">See How Much Time he's Wasted on Bad games!</div>
     <div id="topGames"></div>
     <div id="footer">

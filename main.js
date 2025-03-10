@@ -8,6 +8,8 @@ const port = 9001
 
 var loadedInsults;
 
+var cachedIds = []
+
 app.use(express.static('public'));
 
 // make server serve index.html when requested
@@ -51,43 +53,54 @@ async function getGameBanner(appId) {
 
 // Function to get user's owned games and their playtime
 async function getOwnedGames(steamId) {
-    try {
-        const url = `https://api.steampowered.com/IPlayerService/GetOwnedGames/v1/`;
-        const response = await axios.get(url, {
-            params: {
-                key: steamApiKey,
-                steamid: steamId,
-                include_played_free_games: true,  // Include free games in the result
-                include_appinfo: true,            // Include appinfo such as game name
-            }
-        });
 
-        const games = response.data.response.games;
-
-        // Sort games by playtime (descending order) and get the top 20
-        let topGames = games.sort((a, b) => b.playtime_forever - a.playtime_forever).slice(0, 20);
-
-        // Create an object to store game information in JSON format
-        const topGamesJSON = [];
-
-        // Loop through each game and fetch its banner URL
-        for (let game of topGames) {
-            const bannerUrl = await getGameBanner(game.appid); // Fetch the banner image URL
-            topGamesJSON.push({
-                name: game.name,
-                timemin: (game.playtime_forever).toFixed(2),
-                timehrs: (game.playtime_forever / 60).toFixed(2),
-                banner: bannerUrl
+    if (cachedIds[steamId]) {
+        console.log("cache used")
+        return JSON.stringify(cachedIds[steamId], null, 2)
+    } else {
+        try {
+            const url = `https://api.steampowered.com/IPlayerService/GetOwnedGames/v1/`;
+            const response = await axios.get(url, {
+                params: {
+                    key: steamApiKey,
+                    steamid: steamId,
+                    include_played_free_games: true,  // Include free games in the result
+                    include_appinfo: true,            // Include appinfo such as game name
+                }
             });
+    
+            const games = response.data.response.games;
+    
+            // Sort games by playtime (descending order) and get the top 20
+            let topGames = games.sort((a, b) => b.playtime_forever - a.playtime_forever).slice(0, 20);
+    
+            // Create an object to store game information in JSON format
+            const topGamesJSON = [];
+    
+            // Loop through each game and fetch its banner URL
+            for (let game of topGames) {
+                const bannerUrl = await getGameBanner(game.appid); // Fetch the banner image URL
+                topGamesJSON.push({
+                    name: game.name,
+                    timemin: (game.playtime_forever).toFixed(2),
+                    timehrs: (game.playtime_forever / 60).toFixed(2),
+                    banner: bannerUrl
+                });
+            }
+    
+            // Output the top games in JSON format
+            console.log(JSON.stringify(topGamesJSON, null, 2));
+    
+            cachedIds[steamId] = topGamesJSON
+            console.log(cachedIds)
+    
+            return JSON.stringify(cachedIds[steamId], null, 2)
+        } catch (error) {
+            console.error('Error fetching owned games:', error);
         }
-
-        // Output the top games in JSON format
-        console.log(JSON.stringify(topGamesJSON, null, 2));
-
-        return JSON.stringify(topGamesJSON, null, 2)
-    } catch (error) {
-        console.error('Error fetching owned games:', error);
     }
+
+    
 }
 
 io.on('connection', (socket) => {
