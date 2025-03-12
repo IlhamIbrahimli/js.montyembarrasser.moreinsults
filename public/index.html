@@ -15,7 +15,7 @@
 
     function onLoad() {
         request("76561199061101466")
-        setupHeader()
+        setupHeader("76561199061101466")
     }
 
     function getCookie(name) {
@@ -107,13 +107,13 @@
         }
     }
 
-    function setupHeader() {
-        let header = document.getElementById("header")
+    function setupHeader(SteamID) {
+        let headerText = document.getElementsByClassName("headerText");
+        console.log(SteamID);
+        socket.emit("insult", (SteamID, callback) => {
+        
 
-        socket.emit("insult", (callback) => {
-            let headerPhrase = `<div class="headerText">${callback}</div>`
-
-            header.innerHTML += headerPhrase
+            headerText.innerHTML = callback;
         })
     }
     
@@ -239,6 +239,7 @@
     <div id="header">
         <input type="text" name="" id="selector" placeholder="SteamID...">
         <button id="selectorButton" onclick="request(document.getElementById(`selector`).value)"></button>
+        <div class="headerText"></div>
     </div>
     <div id="topGamesTag">See How Much Time he's Wasted on Bad games!</div>
     <div id="topGames"></div>

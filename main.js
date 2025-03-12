@@ -68,8 +68,12 @@ async function getOwnedGames(steamId) {
                     include_appinfo: true,            // Include appinfo such as game name
                 }
             });
-    
             const games = response.data.response.games;
+            
+
+
+    
+            
     
             // Sort games by playtime (descending order) and get the top 20
             let topGames = games.sort((a, b) => b.playtime_forever - a.playtime_forever).slice(0, 20);
@@ -102,7 +106,19 @@ async function getOwnedGames(steamId) {
 
     
 }
-
+async function getName(steamID) {
+    const userURL = `https://api.steampowered.com/ISteamUser/GetPlayerSummaries/v2/`;
+    const userResponse = await axios.get(userURL, {
+        params: {
+            key: steamApiKey,
+            steamids: steamID
+        }
+    });
+    console.log(userResponse);
+    const name = userResponse.data.response.players.personaname;
+    return name;
+    
+}
 io.on('connection', (socket) => {
     console.log(socket.id);
 
@@ -122,9 +138,17 @@ io.on('connection', (socket) => {
         }
     });
 
-    socket.on("insult", async (returnInsult) => {
-        const insult = "Monty is a" + loadedInsults["adj"][Math.floor(Math.random() * loadedInsults["adj"].length)].toLowerCase() + " " + loadedInsults["verbs"][Math.floor(Math.random() * loadedInsults["verbs"].length)].toLowerCase() + " " + loadedInsults["nouns"][Math.floor(Math.random() * loadedInsults["nouns"].length)].toLowerCase();
+    socket.on("insult", async (data, returnInsult) => {
+        let playerName = "Monty"
+        if (data != undefined) {
+            playerName = await getName(data);
 
+        } else {
+            playerName = "Monty";
+        }
+        
+        const insult = playerName + " is a" + loadedInsults["adj"][Math.floor(Math.random() * loadedInsults["adj"].length)].toLowerCase() + " " + loadedInsults["verbs"][Math.floor(Math.random() * loadedInsults["verbs"].length)].toLowerCase() + " " + loadedInsults["nouns"][Math.floor(Math.random() * loadedInsults["nouns"].length)].toLowerCase();
+        console.log(insult)
         returnInsult(insult);
     });
 });
